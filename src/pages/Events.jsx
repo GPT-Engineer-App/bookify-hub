@@ -17,7 +17,8 @@ const fetchEvents = async () => {
   const events = getEvents();
   return events.map(event => ({
     ...event,
-    date: event.date ? new Date(event.date) : null // Ensure date is a valid Date object or null
+    date: event.date ? new Date(event.date) : null,
+    time: event.time || null // Ensure time is a string or null
   }));
 };
 
@@ -129,7 +130,8 @@ const Events = () => {
                           try {
                             if (!event.date || !event.time || !event.duration || isNaN(event.date.getTime())) return "N/A";
                             const startDateTime = new Date(event.date);
-                            const [hours, minutes] = event.time.split(':');
+                            const [hours, minutes] = (event.time || "").split(':');
+                            if (!hours || !minutes) return "N/A";
                             startDateTime.setHours(parseInt(hours, 10), parseInt(minutes, 10));
                             const endTime = addMinutes(startDateTime, event.duration);
                             return !isNaN(endTime.getTime()) ? format(endTime, "HH:mm") : "N/A";
