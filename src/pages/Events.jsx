@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { format, addMinutes, parseISO } from "date-fns";
+import { format, addMinutes, parseISO, isSameDay } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { loadStripe } from "@stripe/stripe-js";
@@ -55,6 +56,8 @@ const Events = () => {
     (event) => format(event.date, "yyyy-MM-dd") === format(selectedDate, "yyyy-MM-dd")
   );
 
+  const eventDates = useMemo(() => events.map(event => event.date), [events]);
+
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-3xl font-bold mb-6">Event Calendar</h1>
@@ -65,6 +68,23 @@ const Events = () => {
             selected={selectedDate}
             onSelect={setSelectedDate}
             className="rounded-md border"
+            modifiers={{ hasEvent: eventDates }}
+            modifiersStyles={{
+              hasEvent: { backgroundColor: "var(--accent)", color: "var(--accent-foreground)" }
+            }}
+            components={{
+              DayContent: ({ date, ...props }) => (
+                <div
+                  {...props}
+                  className={cn(
+                    props.className,
+                    events.some(event => isSameDay(date, event.date)) && "bg-accent text-accent-foreground rounded-full"
+                  )}
+                >
+                  {date.getDate()}
+                </div>
+              ),
+            }}
           />
         </div>
         <div className="md:w-2/3">
