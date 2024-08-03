@@ -65,7 +65,7 @@ const Events = () => {
   });
 
   const filteredEvents = events.filter(
-    (event) => format(event.date, "yyyy-MM-dd") === format(selectedDate, "yyyy-MM-dd")
+    (event) => isSameDay(event.date, selectedDate)
   );
 
   const eventDates = useMemo(() => {
@@ -91,6 +91,7 @@ const Events = () => {
               DayContent: ({ date, ...props }) => {
                 const dateStr = format(date, 'yyyy-MM-dd');
                 const eventCount = eventDates[dateStr] || 0;
+                const isSelected = isSameDay(date, selectedDate);
                 return (
                   <div className="relative w-full h-full">
                     <div
@@ -98,7 +99,8 @@ const Events = () => {
                       className={cn(
                         props.className,
                         "w-full h-full flex items-center justify-center",
-                        eventCount > 0 && "font-bold text-primary"
+                        eventCount > 0 && "font-bold",
+                        isSelected ? "text-white" : (eventCount > 0 ? "text-primary" : undefined)
                       )}
                     >
                       {date.getDate()}
@@ -108,7 +110,10 @@ const Events = () => {
                         {[...Array(Math.min(eventCount, 3))].map((_, i) => (
                           <div
                             key={i}
-                            className="w-1 h-1 rounded-full bg-red-500 mx-0.5"
+                            className={cn(
+                              "w-1 h-1 rounded-full mx-0.5",
+                              isSelected ? "bg-white" : "bg-primary"
+                            )}
                           />
                         ))}
                       </div>
