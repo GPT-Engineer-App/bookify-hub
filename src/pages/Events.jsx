@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { format, addMinutes, parseISO, isSameDay } from "date-fns";
+import { format, addMinutes, parseISO, isSameDay, isSameMonth } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -39,7 +39,19 @@ const fetchEvents = async () => {
       description: "A day-long music festival featuring top artists from around the world.",
       imageUrl: "https://example.com/music-festival.jpg"
     },
-    // ... add more events with the new structure
+    {
+      id: 3,
+      title: "Art Exhibition",
+      date: new Date(2024, 6, 1),
+      time: "10:00",
+      duration: 240,
+      price: 15.00,
+      maxAttendees: 200,
+      currentAttendees: 75,
+      description: "An exhibition showcasing works from local and international artists.",
+      imageUrl: "https://example.com/art-exhibition.jpg"
+    },
+    // ... add more events if needed
   ];
 };
 
@@ -56,7 +68,14 @@ const Events = () => {
     (event) => format(event.date, "yyyy-MM-dd") === format(selectedDate, "yyyy-MM-dd")
   );
 
-  const eventDates = useMemo(() => events.map(event => event.date), [events]);
+  const eventDates = useMemo(() => {
+    const dates = {};
+    events.forEach(event => {
+      const dateStr = format(event.date, 'yyyy-MM-dd');
+      dates[dateStr] = (dates[dateStr] || 0) + 1;
+    });
+    return dates;
+  }, [events]);
 
   return (
     <div className="container mx-auto py-8">
@@ -68,22 +87,35 @@ const Events = () => {
             selected={selectedDate}
             onSelect={setSelectedDate}
             className="rounded-md border"
-            modifiers={{ hasEvent: eventDates }}
-            modifiersStyles={{
-              hasEvent: { backgroundColor: "var(--accent)", color: "var(--accent-foreground)" }
-            }}
             components={{
-              DayContent: ({ date, ...props }) => (
-                <div
-                  {...props}
-                  className={cn(
-                    props.className,
-                    events.some(event => isSameDay(date, event.date)) && "bg-accent text-accent-foreground rounded-full"
-                  )}
-                >
-                  {date.getDate()}
-                </div>
-              ),
+              DayContent: ({ date, ...props }) => {
+                const dateStr = format(date, 'yyyy-MM-dd');
+                const eventCount = eventDates[dateStr] || 0;
+                return (
+                  <div className="relative w-full h-full">
+                    <div
+                      {...props}
+                      className={cn(
+                        props.className,
+                        "w-full h-full flex items-center justify-center",
+                        eventCount > 0 && "font-bold text-primary"
+                      )}
+                    >
+                      {date.getDate()}
+                    </div>
+                    {eventCount > 0 && (
+                      <div className="absolute bottom-1 left-0 right-0 flex justify-center">
+                        {[...Array(Math.min(eventCount, 3))].map((_, i) => (
+                          <div
+                            key={i}
+                            className="w-1 h-1 rounded-full bg-red-500 mx-0.5"
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              },
             }}
           />
         </div>
