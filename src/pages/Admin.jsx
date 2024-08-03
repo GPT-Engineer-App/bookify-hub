@@ -6,11 +6,17 @@ import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
 const schema = z.object({
   title: z.string().min(1, "Title is required"),
   price: z.number().min(0, "Price must be a positive number"),
+  time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format"),
+  duration: z.number().min(1, "Duration must be at least 1 minute"),
+  maxAttendees: z.number().min(1, "Number of attendees must be at least 1"),
+  description: z.string().min(1, "Description is required"),
+  imageUrl: z.string().url("Invalid URL for image"),
 });
 
 const Admin = () => {
@@ -21,6 +27,11 @@ const Admin = () => {
     defaultValues: {
       title: "",
       price: 0,
+      time: "",
+      duration: 60,
+      maxAttendees: 1,
+      description: "",
+      imageUrl: "",
     },
   });
 
@@ -80,6 +91,71 @@ const Admin = () => {
                 <FormLabel>Date</FormLabel>
                 <p>{format(selectedDate, "MMMM d, yyyy")}</p>
               </div>
+              <FormField
+                control={form.control}
+                name="time"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Time</FormLabel>
+                    <FormControl>
+                      <Input type="time" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="duration"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Duration (minutes)</FormLabel>
+                    <FormControl>
+                      <Input type="number" {...field} onChange={(e) => field.onChange(parseInt(e.target.value))} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="maxAttendees"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Max Attendees</FormLabel>
+                    <FormControl>
+                      <Input type="number" {...field} onChange={(e) => field.onChange(parseInt(e.target.value))} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="imageUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Image URL</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <Button type="submit">Create Event</Button>
             </form>
           </Form>

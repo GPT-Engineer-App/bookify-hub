@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
+import { format, addMinutes } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,16 +14,31 @@ const stripePromise = loadStripe("your_stripe_publishable_key");
 const fetchEvents = async () => {
   // Simulated API call
   return [
-    { id: 1, title: "Tech Conference", date: new Date(2024, 5, 15), price: 99.99 },
-    { id: 2, title: "Music Festival", date: new Date(2024, 6, 1), price: 149.99 },
-    { id: 3, title: "Art Exhibition", date: new Date(2024, 7, 10), price: 19.99 },
-    { id: 4, title: "Food & Wine Expo", date: new Date(2024, 8, 5), price: 79.99 },
-    { id: 5, title: "Marathon", date: new Date(2024, 9, 20), price: 50.00 },
-    { id: 6, title: "Comic Con", date: new Date(2024, 10, 15), price: 89.99 },
-    { id: 7, title: "Jazz Night", date: new Date(2024, 11, 1), price: 39.99 },
-    { id: 8, title: "Science Fair", date: new Date(2025, 0, 10), price: 15.00 },
-    { id: 9, title: "Book Festival", date: new Date(2025, 1, 14), price: 10.00 },
-    { id: 10, title: "Career Expo", date: new Date(2025, 2, 22), price: 5.00 },
+    {
+      id: 1,
+      title: "Tech Conference",
+      date: new Date(2024, 5, 15),
+      time: "09:00",
+      duration: 480,
+      price: 99.99,
+      maxAttendees: 500,
+      currentAttendees: 350,
+      description: "A conference showcasing the latest in technology trends and innovations.",
+      imageUrl: "https://example.com/tech-conference.jpg"
+    },
+    {
+      id: 2,
+      title: "Music Festival",
+      date: new Date(2024, 6, 1),
+      time: "14:00",
+      duration: 360,
+      price: 149.99,
+      maxAttendees: 10000,
+      currentAttendees: 8500,
+      description: "A day-long music festival featuring top artists from around the world.",
+      imageUrl: "https://example.com/music-festival.jpg"
+    },
+    // ... add more events with the new structure
   ];
 };
 
@@ -65,9 +80,19 @@ const Events = () => {
                   <CardHeader>
                     <CardTitle>{event.title}</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <p>Date: {format(event.date, "MMMM d, yyyy")}</p>
-                    <p>Price: ${event.price.toFixed(2)}</p>
+                  <CardContent className="grid grid-cols-2 gap-4">
+                    <div>
+                      <img src={event.imageUrl} alt={event.title} className="w-full h-48 object-cover rounded-md" />
+                    </div>
+                    <div>
+                      <p><strong>Date:</strong> {format(event.date, "MMMM d, yyyy")}</p>
+                      <p><strong>Time:</strong> {event.time}</p>
+                      <p><strong>Duration:</strong> {event.duration} minutes</p>
+                      <p><strong>End Time:</strong> {format(addMinutes(new Date(`${format(event.date, "yyyy-MM-dd")}T${event.time}`), event.duration), "HH:mm")}</p>
+                      <p><strong>Price:</strong> ${event.price.toFixed(2)}</p>
+                      <p><strong>Attendees:</strong> {event.currentAttendees}/{event.maxAttendees}</p>
+                      <p className="mt-2"><strong>Description:</strong> {event.description}</p>
+                    </div>
                   </CardContent>
                   <CardFooter>
                     <Dialog>
