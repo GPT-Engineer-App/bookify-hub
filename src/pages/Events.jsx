@@ -31,6 +31,12 @@ const Events = () => {
     queryFn: fetchEvents,
   });
 
+  const handleDateSelect = (date) => {
+    if (date && (!selectedDate || !isSameDay(date, selectedDate))) {
+      setSelectedDate(date);
+    }
+  };
+
   useEffect(() => {
     const handleStorageChange = (e) => {
       if (e.key === 'events') {
@@ -65,7 +71,7 @@ const Events = () => {
           <Calendar
             mode="single"
             selected={selectedDate}
-            onSelect={setSelectedDate}
+            onSelect={handleDateSelect}
             className="rounded-md border"
             components={{
               DayContent: ({ date, ...props }) => {
