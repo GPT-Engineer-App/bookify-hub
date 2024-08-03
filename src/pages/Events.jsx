@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { format, addMinutes } from "date-fns";
+import { format, addMinutes, parseISO } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -85,10 +85,19 @@ const Events = () => {
                       <img src={event.imageUrl} alt={event.title} className="w-full h-48 object-cover rounded-md" />
                     </div>
                     <div>
-                      <p><strong>Date:</strong> {format(event.date, "MMMM d, yyyy")}</p>
+                      <p><strong>Date:</strong> {format(parseISO(event.date), "MMMM d, yyyy")}</p>
                       <p><strong>Time:</strong> {event.time}</p>
                       <p><strong>Duration:</strong> {event.duration} minutes</p>
-                      <p><strong>End Time:</strong> {format(addMinutes(new Date(`${format(event.date, "yyyy-MM-dd")}T${event.time}`), event.duration), "HH:mm")}</p>
+                      <p><strong>End Time:</strong> {
+                        (() => {
+                          try {
+                            return format(addMinutes(parseISO(`${format(parseISO(event.date), "yyyy-MM-dd")}T${event.time}:00`), event.duration), "HH:mm");
+                          } catch (error) {
+                            console.error("Error formatting end time:", error);
+                            return "N/A";
+                          }
+                        })()
+                      }</p>
                       <p><strong>Price:</strong> ${event.price.toFixed(2)}</p>
                       <p><strong>Attendees:</strong> {event.currentAttendees}/{event.maxAttendees}</p>
                       <p className="mt-2"><strong>Description:</strong> {event.description}</p>
