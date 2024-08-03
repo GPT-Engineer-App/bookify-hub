@@ -14,7 +14,11 @@ import PaymentForm from "../components/PaymentForm";
 const stripePromise = loadStripe("your_stripe_publishable_key");
 
 const fetchEvents = async () => {
-  return getEvents();
+  const events = getEvents();
+  return events.map(event => ({
+    ...event,
+    date: new Date(event.date) // Ensure date is a valid Date object
+  }));
 };
 
 const Events = () => {
@@ -38,7 +42,7 @@ const Events = () => {
   }, [refetch]);
 
   const filteredEvents = events.filter(
-    (event) => isSameDay(event.date, selectedDate)
+    (event) => event.date && isSameDay(event.date, selectedDate)
   );
 
   const eventDates = useMemo(() => {
@@ -115,12 +119,13 @@ const Events = () => {
                       <img src={event.imageUrl} alt={event.title} className="w-full h-48 object-cover rounded-md" />
                     </div>
                     <div>
-                      <p><strong>Date:</strong> {format(event.date, "MMMM d, yyyy")}</p>
-                      <p><strong>Time:</strong> {event.time}</p>
-                      <p><strong>Duration:</strong> {event.duration} minutes</p>
+                      <p><strong>Date:</strong> {event.date ? format(event.date, "MMMM d, yyyy") : "N/A"}</p>
+                      <p><strong>Time:</strong> {event.time || "N/A"}</p>
+                      <p><strong>Duration:</strong> {event.duration ? `${event.duration} minutes` : "N/A"}</p>
                       <p><strong>End Time:</strong> {
                         (() => {
                           try {
+                            if (!event.date || !event.time || !event.duration) return "N/A";
                             const startDateTime = new Date(event.date);
                             const [hours, minutes] = event.time.split(':');
                             startDateTime.setHours(parseInt(hours, 10), parseInt(minutes, 10));
@@ -131,9 +136,9 @@ const Events = () => {
                           }
                         })()
                       }</p>
-                      <p><strong>Price:</strong> ${event.price.toFixed(2)}</p>
-                      <p><strong>Attendees:</strong> {event.currentAttendees}/{event.maxAttendees}</p>
-                      <p className="mt-2"><strong>Description:</strong> {event.description}</p>
+                      <p><strong>Price:</strong> ${event.price ? event.price.toFixed(2) : "N/A"}</p>
+                      <p><strong>Attendees:</strong> {event.currentAttendees !== undefined && event.maxAttendees !== undefined ? `${event.currentAttendees}/${event.maxAttendees}` : "N/A"}</p>
+                      <p className="mt-2"><strong>Description:</strong> {event.description || "N/A"}</p>
                     </div>
                   </CardContent>
                   <CardFooter>
