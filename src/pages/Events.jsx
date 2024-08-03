@@ -17,7 +17,7 @@ const fetchEvents = async () => {
   const events = getEvents();
   return events.map(event => ({
     ...event,
-    date: new Date(event.date) // Ensure date is a valid Date object
+    date: event.date ? new Date(event.date) : null // Ensure date is a valid Date object or null
   }));
 };
 
@@ -42,14 +42,16 @@ const Events = () => {
   }, [refetch]);
 
   const filteredEvents = events.filter(
-    (event) => event.date && isSameDay(event.date, selectedDate)
+    (event) => event.date && !isNaN(event.date.getTime()) && isSameDay(event.date, selectedDate)
   );
 
   const eventDates = useMemo(() => {
     const dates = {};
     events.forEach(event => {
-      const dateStr = format(event.date, 'yyyy-MM-dd');
-      dates[dateStr] = (dates[dateStr] || 0) + 1;
+      if (event.date && !isNaN(event.date.getTime())) {
+        const dateStr = format(event.date, 'yyyy-MM-dd');
+        dates[dateStr] = (dates[dateStr] || 0) + 1;
+      }
     });
     return dates;
   }, [events]);
@@ -119,17 +121,18 @@ const Events = () => {
                       <img src={event.imageUrl} alt={event.title} className="w-full h-48 object-cover rounded-md" />
                     </div>
                     <div>
-                      <p><strong>Date:</strong> {event.date ? format(event.date, "MMMM d, yyyy") : "N/A"}</p>
+                      <p><strong>Date:</strong> {event.date && !isNaN(event.date.getTime()) ? format(event.date, "MMMM d, yyyy") : "N/A"}</p>
                       <p><strong>Time:</strong> {event.time || "N/A"}</p>
                       <p><strong>Duration:</strong> {event.duration ? `${event.duration} minutes` : "N/A"}</p>
                       <p><strong>End Time:</strong> {
                         (() => {
                           try {
-                            if (!event.date || !event.time || !event.duration) return "N/A";
+                            if (!event.date || !event.time || !event.duration || isNaN(event.date.getTime())) return "N/A";
                             const startDateTime = new Date(event.date);
                             const [hours, minutes] = event.time.split(':');
                             startDateTime.setHours(parseInt(hours, 10), parseInt(minutes, 10));
-                            return format(addMinutes(startDateTime, event.duration), "HH:mm");
+                            const endTime = addMinutes(startDateTime, event.duration);
+                            return !isNaN(endTime.getTime()) ? format(endTime, "HH:mm") : "N/A";
                           } catch (error) {
                             console.error("Error formatting end time:", error);
                             return "N/A";
