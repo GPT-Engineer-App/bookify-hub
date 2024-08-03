@@ -112,7 +112,7 @@ const Events = () => {
                             key={i}
                             className={cn(
                               "w-1 h-1 rounded-full mx-0.5",
-                              isSelected ? "bg-white" : "bg-primary"
+                              isSelected ? "bg-white" : "bg-red-500"
                             )}
                           />
                         ))}
