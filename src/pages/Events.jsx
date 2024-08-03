@@ -1,6 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format, addMinutes, parseISO, isSameDay, isSameMonth } from "date-fns";
+import { getEvents } from "../utils/eventStorage";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -13,56 +14,28 @@ import PaymentForm from "../components/PaymentForm";
 const stripePromise = loadStripe("your_stripe_publishable_key");
 
 const fetchEvents = async () => {
-  // Simulated API call
-  return [
-    {
-      id: 1,
-      title: "Tech Conference",
-      date: new Date(2024, 5, 15),
-      time: "09:00",
-      duration: 480,
-      price: 99.99,
-      maxAttendees: 500,
-      currentAttendees: 350,
-      description: "A conference showcasing the latest in technology trends and innovations.",
-      imageUrl: "https://example.com/tech-conference.jpg"
-    },
-    {
-      id: 2,
-      title: "Music Festival",
-      date: new Date(2024, 6, 1),
-      time: "14:00",
-      duration: 360,
-      price: 149.99,
-      maxAttendees: 10000,
-      currentAttendees: 8500,
-      description: "A day-long music festival featuring top artists from around the world.",
-      imageUrl: "https://example.com/music-festival.jpg"
-    },
-    {
-      id: 3,
-      title: "Art Exhibition",
-      date: new Date(2024, 6, 1),
-      time: "10:00",
-      duration: 240,
-      price: 15.00,
-      maxAttendees: 200,
-      currentAttendees: 75,
-      description: "An exhibition showcasing works from local and international artists.",
-      imageUrl: "https://example.com/art-exhibition.jpg"
-    },
-    // ... add more events if needed
-  ];
+  return getEvents();
 };
 
 const Events = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedEvent, setSelectedEvent] = useState(null);
 
-  const { data: events = [] } = useQuery({
+  const { data: events = [], refetch } = useQuery({
     queryKey: ["events"],
     queryFn: fetchEvents,
   });
+
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'events') {
+        refetch();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [refetch]);
 
   const filteredEvents = events.filter(
     (event) => isSameDay(event.date, selectedDate)

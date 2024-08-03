@@ -3,6 +3,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "date-fns";
+import { saveEvent } from "../utils/eventStorage";
+import { toast } from "sonner";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,9 +42,11 @@ const Admin = () => {
       ...data,
       date: selectedDate,
     };
-    console.log("New event:", event);
-    // Here you would typically send this data to your backend API
+    const savedEvent = saveEvent(event);
+    console.log("New event:", savedEvent);
+    toast.success("Event created successfully!");
     form.reset();
+    setSelectedDate(new Date());
   };
 
   return (
