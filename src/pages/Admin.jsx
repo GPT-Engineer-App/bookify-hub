@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import { saveEvent } from "../utils/eventStorage";
 import { toast } from "sonner";
 import { Calendar } from "@/components/ui/calendar";
@@ -38,9 +38,13 @@ const Admin = () => {
   });
 
   const onSubmit = (data) => {
+    const eventDate = new Date(selectedDate);
+    const [hours, minutes] = data.time.split(':');
+    eventDate.setHours(parseInt(hours, 10), parseInt(minutes, 10));
+
     const event = {
       ...data,
-      date: selectedDate,
+      date: eventDate,
     };
     const savedEvent = saveEvent(event);
     console.log("New event:", savedEvent);
@@ -93,7 +97,7 @@ const Admin = () => {
               />
               <div>
                 <FormLabel>Date</FormLabel>
-                <p>{format(selectedDate, "MMMM d, yyyy")}</p>
+                <p>{selectedDate ? format(selectedDate, "MMMM d, yyyy") : "No date selected"}</p>
               </div>
               <FormField
                 control={form.control}
