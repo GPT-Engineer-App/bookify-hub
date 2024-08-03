@@ -85,13 +85,16 @@ const Events = () => {
                       <img src={event.imageUrl} alt={event.title} className="w-full h-48 object-cover rounded-md" />
                     </div>
                     <div>
-                      <p><strong>Date:</strong> {format(parseISO(event.date), "MMMM d, yyyy")}</p>
+                      <p><strong>Date:</strong> {format(event.date, "MMMM d, yyyy")}</p>
                       <p><strong>Time:</strong> {event.time}</p>
                       <p><strong>Duration:</strong> {event.duration} minutes</p>
                       <p><strong>End Time:</strong> {
                         (() => {
                           try {
-                            return format(addMinutes(parseISO(`${format(parseISO(event.date), "yyyy-MM-dd")}T${event.time}:00`), event.duration), "HH:mm");
+                            const startDateTime = new Date(event.date);
+                            const [hours, minutes] = event.time.split(':');
+                            startDateTime.setHours(parseInt(hours, 10), parseInt(minutes, 10));
+                            return format(addMinutes(startDateTime, event.duration), "HH:mm");
                           } catch (error) {
                             console.error("Error formatting end time:", error);
                             return "N/A";
