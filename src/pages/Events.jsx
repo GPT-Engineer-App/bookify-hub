@@ -17,6 +17,13 @@ const fetchEvents = async () => {
     { id: 1, title: "Tech Conference", date: new Date(2024, 5, 15), price: 99.99 },
     { id: 2, title: "Music Festival", date: new Date(2024, 6, 1), price: 149.99 },
     { id: 3, title: "Art Exhibition", date: new Date(2024, 7, 10), price: 19.99 },
+    { id: 4, title: "Food & Wine Expo", date: new Date(2024, 8, 5), price: 79.99 },
+    { id: 5, title: "Marathon", date: new Date(2024, 9, 20), price: 50.00 },
+    { id: 6, title: "Comic Con", date: new Date(2024, 10, 15), price: 89.99 },
+    { id: 7, title: "Jazz Night", date: new Date(2024, 11, 1), price: 39.99 },
+    { id: 8, title: "Science Fair", date: new Date(2025, 0, 10), price: 15.00 },
+    { id: 9, title: "Book Festival", date: new Date(2025, 1, 14), price: 10.00 },
+    { id: 10, title: "Career Expo", date: new Date(2025, 2, 22), price: 5.00 },
   ];
 };
 
