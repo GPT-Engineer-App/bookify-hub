@@ -1,6 +1,6 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { format, addMinutes, parseISO, isSameDay, isSameMonth } from "date-fns";
+import { format, addMinutes, isSameDay } from "date-fns";
 import { getEvents } from "../utils/eventStorage";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,11 @@ const fetchEvents = async () => {
 const Events = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [isFormDirty, setIsFormDirty] = useState(false);
+
+  const handleFormChange = useCallback((isDirty) => {
+    setIsFormDirty(isDirty);
+  }, []);
 
   const { data: events = [], refetch } = useQuery({
     queryKey: ["events"],
@@ -157,12 +162,12 @@ const Events = () => {
                       <DialogTrigger asChild>
                         <Button onClick={() => setSelectedEvent(event)}>Book Now</Button>
                       </DialogTrigger>
-                      <DialogContent>
+                      <DialogContent closeOnOutsideClick={!isFormDirty}>
                         <DialogHeader>
                           <DialogTitle>Book {event.title}</DialogTitle>
                         </DialogHeader>
                         <Elements stripe={stripePromise}>
-                          <PaymentForm event={selectedEvent} />
+                          <PaymentForm event={selectedEvent} onFormChange={handleFormChange} />
                         </Elements>
                       </DialogContent>
                     </Dialog>

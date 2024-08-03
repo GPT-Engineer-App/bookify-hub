@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ const schema = z.object({
   }),
 });
 
-const PaymentForm = ({ event }) => {
+const PaymentForm = ({ event, onFormChange }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [error, setError] = useState(null);
@@ -31,6 +31,13 @@ const PaymentForm = ({ event }) => {
       favoriteAnimal: "",
     },
   });
+
+  const formValues = useWatch({ control: form.control });
+
+  useEffect(() => {
+    const isFormEmpty = Object.values(formValues).every(value => value === "" || value === undefined);
+    onFormChange(!isFormEmpty);
+  }, [formValues, onFormChange]);
 
   const onSubmit = async (data) => {
     if (!stripe || !elements) {
